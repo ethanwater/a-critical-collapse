@@ -18,7 +18,7 @@
             overflow-x: hidden;
         }
 
-        .gif-container {
+        .gif-container-start {
             position: absolute;
             top: 40px;
             left: 50%;
@@ -29,6 +29,24 @@
             align-items: center;
             justify-content: center;
         }
+
+        .gif-container-end {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .gif-container-end.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
 
         .gif-placeholder {
             color: #666;
@@ -94,17 +112,21 @@
 </head>
 <body>
     <canvas id="effectCanvas"></canvas> 
-    <div class="gif-container">
+    <div class="gif-container-start">
         <div class="title" id="title">
             <p>a</p>
             <p>critical</p>
             <p>collapse</p>
         </div>
-        <img src="images/shattered-heart.png" alt="Girl in a jacket" width="320" height="180">
+        <img src="images/shattered-heart.png" alt="shattered heart" width="320" height="180">
     </div>
 
     <div class="content" id="content">
         <!-- Entries will be loaded here -->
+    </div>
+
+    <div class="gif-container-end">
+        <img src="images/heart.gif" alt="full heart" width="200" height="200">
     </div>
 
     <script>
@@ -147,7 +169,6 @@
         }
         createParticles('snow');
         animate();
-
 
         // Load entries from local folder using fetch
         async function loadEntries() {
@@ -202,17 +223,30 @@
         // Scroll reveal functionality
         function revealOnScroll() {
             const entries = document.querySelectorAll('.entry');
+            const gifEnd = document.querySelector('.gif-container-end');
             const windowHeight = window.innerHeight;
-
-            entries.forEach((entry, index) => {
+        
+            let allVisible = true;
+        
+            entries.forEach(entry => {
                 const entryTop = entry.getBoundingClientRect().top;
                 const revealPoint = windowHeight * 0.75;
-
+            
                 if (entryTop < revealPoint) {
                     entry.classList.add('visible');
                 }
+            
+                if (!entry.classList.contains('visible')) {
+                    allVisible = false;
+                }
             });
+        
+            // Show the bottom GIF only if all entries are visible
+            if (allVisible && gifEnd) {
+                gifEnd.classList.add('visible');
+            }
         }
+
 
         // Load entries on page load
         window.addEventListener('load', loadEntries);
